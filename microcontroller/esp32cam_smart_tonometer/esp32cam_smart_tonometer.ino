@@ -68,7 +68,7 @@ struct button {
   }
 };
 
-button leftButton = button(1);
+button leftButton = button(13); //1 // 16
 button rightButton = button(3);
 TFT_eSPI tft = TFT_eSPI();
 
@@ -236,7 +236,6 @@ void setup() {
   if (httpCode <= 0) {
     drawStatus("server off", TFT_RED);
     http.end();
-    WiFi.disconnect();
     return;
   }
 
@@ -247,7 +246,7 @@ void setup() {
 void sendMeasurement(String hand) {
   drawStatus("taking photo", TFT_CYAN);
 
-  Serial.println("taking photo");
+  Serial.println("sendMeasurement: taking photo");
 
   digitalWrite(4, HIGH);
   delay(200);
@@ -255,14 +254,24 @@ void sendMeasurement(String hand) {
   camera_fb_t* photo = esp_camera_fb_get();
   digitalWrite(4, LOW);
 
-  Serial.println("took photo, size " + String(photo->len));
+  Serial.println("sendMeasurement: took photo, size " + String(photo->len));
 
   drawStatus("sending photo", TFT_CYAN);
 
+  Serial.println("sendMeasurement: before http");
+
   HTTPClient http;
+
+  Serial.println("sendMeasurement: before http.begin");
+
   http.begin(apiHost + "/measurement?hand=" + hand);
 
+  Serial.println("sendMeasurement: before http.POST");
+
   int httpCode = http.POST(photo->buf, photo->len);
+
+  Serial.println("sendMeasurement: after http.POST");
+  
   if (httpCode != 200) {
     drawStatus("sending error", TFT_RED);
   } else {
@@ -279,10 +288,12 @@ void sendMeasurement(String hand) {
 
 void loop() {
   if (leftButton.isPressed()) {
+    Serial.println("left button pressed");
     drawButtonLeft(LEFT, true);
     drawButtonRight(RIGHT, false);
     sendMeasurement("LEFT");
   } else if (rightButton.isPressed()) {
+    Serial.println("right button pressed");
     drawButtonLeft(LEFT, false);
     drawButtonRight(RIGHT, true);
     sendMeasurement("RIGHT");
