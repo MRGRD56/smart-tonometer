@@ -4,10 +4,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.mrgrd56.smarttonometer.dto.MeasurementHand;
 import ru.mrgrd56.smarttonometer.dto.MeasurementResultDto;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Random;
 import java.util.UUID;
 
 @RestController
@@ -18,11 +20,18 @@ public class MeasurementController {
             @RequestParam MeasurementHand hand,
             @RequestBody(required = false) byte[] photo) {
         try {
-            Files.write(Path.of("C:\\_op\\esphoto_" + Instant.now().getEpochSecond() + ".jpg"), photo);
+            Path path = Files.write(Path.of("C:\\_op\\esphoto\\esphoto_" + Instant.now().getEpochSecond() + ".jpg"), photo);
+            Desktop.getDesktop().open(path.toFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return MeasurementResultDto.ok(124, 71, 81, false);
+        var random = new Random();
+
+        return MeasurementResultDto.ok(
+                random.nextInt(100, 140 + 1),
+                random.nextInt(60, 80 + 1),
+                random.nextInt(60, 90),
+                random.nextBoolean());
     }
 }
