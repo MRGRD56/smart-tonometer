@@ -163,6 +163,15 @@ bool initCamera() {
     return false;
   }
 
+  sensor_t* sensor = esp_camera_sensor_get();
+
+  sensor->set_vflip(sensor, 1);
+  sensor->set_hmirror(sensor, 1);
+  sensor->set_wb_mode(sensor, 3);
+  sensor->set_contrast(sensor, 2);
+  sensor->set_saturation(sensor, 2);
+  sensor->set_raw_gma(sensor, 1);
+
   return true;
 }
 
@@ -174,12 +183,15 @@ void setup() {
   #pragma endregion
 
   pinMode(4, OUTPUT);
+  // ledcSetup(0, 5000, 8);
+  // ledcAttachPin(4, 0);
+  // ledcWrite(0, 0);
 
   leftButton.initialize();
   rightButton.initialize();
 
   tft.init();
-  tft.setRotation(2);
+  tft.setRotation(0);
 
   tftWidth = tft.width();
   tftHeight = tft.height();
@@ -247,6 +259,8 @@ void sendMeasurement(String hand) {
   drawStatus("taking photo", TFT_CYAN);
 
   Serial.println("sendMeasurement: taking photo");
+
+  delay(400);
 
   digitalWrite(4, HIGH);
   delay(200);
